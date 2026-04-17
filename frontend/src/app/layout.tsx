@@ -1,20 +1,19 @@
-import type { Metadata } from "next";
+'use client';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { useAuthStore } from '@/store/useAuthStore';
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "FulboCards",
-  description: "Colecciona los mejores momentos del fútbol",
-};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // ACÁ sacamos los datos del store global para saber si estás logueado
+  const { isAuthenticated, user } = useAuthStore();
+
   return (
     <html lang="es">
       <body className={`${inter.className} bg-neutral-900 text-white min-h-screen flex flex-col`}>
@@ -33,14 +32,26 @@ export default function RootLayout({
               <Link href="/" className="text-neutral-400 hover:text-white transition-colors">Mi Colección</Link>
               <Link href="/sobres" className="text-neutral-400 hover:text-white transition-colors">Sobres</Link>
               <Link href="/mercado" className="text-neutral-400 hover:text-white transition-colors">Mercado</Link>
+              <Link href="/juego" className="text-neutral-400 hover:text-white transition-colors">Juegos</Link>
             </div>
 
-            {/* Módulo de Usuario / Monedas */}
-            <div className="flex items-center gap-4 bg-neutral-800 px-4 py-2 rounded-full border border-neutral-700">
-              <span className="text-yellow-500 font-bold">🪙 500</span>
-              <div className="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center text-xs">
-                👤
-              </div>
+            {/* ZONA DE USUARIO DINÁMICA */}
+            <div className="flex items-center gap-4">
+              {isAuthenticated ? (
+                // SI ESTÁ LOGUEADO: Muestra Monedas y Avatar
+                <div className="flex items-center gap-4 bg-neutral-800 px-4 py-2 rounded-full border border-neutral-700">
+                  <span className="text-yellow-500 font-bold">🪙 {user?.coins}</span>
+                  <div className="w-[1px] h-4 bg-neutral-600"></div>
+                  <Link href="/perfil" className="w-8 h-8 rounded-full overflow-hidden border border-neutral-500 hover:scale-110 transition-transform">
+                    <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${user?.email}`} alt="Perfil" />
+                  </Link>
+                </div>
+              ) : (
+                // SI NO ESTÁ LOGUEADO: Muestra botón Ingresar
+                <Link href="/login" className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold text-sm transition-colors uppercase tracking-widest">
+                  Ingresar
+                </Link>
+              )}
             </div>
 
           </div>
